@@ -24,9 +24,14 @@ public class OrderController {
 		this.service = service;
 	}
 	
-	@GetMapping
+	@GetMapping("/allOrders")
 	public List<Orders> getAllOrders() {
 		return service.getAllOrders();
+	}
+	
+	@GetMapping("/testingOrder")
+	public String testOrder() {
+		return "Testing order service");
 	}
 
     @PostMapping("/create")
