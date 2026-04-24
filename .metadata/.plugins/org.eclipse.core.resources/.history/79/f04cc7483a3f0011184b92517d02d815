@@ -1,0 +1,57 @@
+package com.example.apiGateway.filter;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+
+import com.example.apiGateway.util.JwtUtil;
+
+import jakarta.annotation.PostConstruct;
+
+@Component
+public class JwtAuthenticationFilter
+        extends AbstractGatewayFilterFactory<JwtAuthenticationFilter.Config> {
+
+    @Autowired
+    private JwtUtil jwtUtil;
+    
+    @PostConstruct
+    public void init() {
+        System.out.println("JWT FILTER LOADED");
+    }
+
+    public JwtAuthenticationFilter() {
+        super(Config.class);
+        System.out.println("JWT FILTER INITIALIZED");
+    }
+
+    @Override
+    public GatewayFilter apply(Config config) {
+
+        return (exchange, chain) -> {
+
+            String authHeader =
+                    exchange.getRequest().getHeaders().getFirst("Authorization");
+
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            	 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            	    return exchange.getResponse().setComplete();
+            }
+
+            String token = authHeader.substring(7);
+            String username = jwtUtil.extractUsername(token);
+
+            if (!jwtUtil.validateToken(token,username)) {
+                throw new RuntimeException("Invalid JWT Token");
+            }
+
+            System.out.println("exchange--->"+exchange);
+            return chain.filter(exchange);
+        };
+    }
+
+    public static class Config {
+    }
+}
