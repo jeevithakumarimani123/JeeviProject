@@ -31,7 +31,7 @@ public class OrderController {
 	
 	@GetMapping("/testingOrder")
 	public String testOrder() {
-		return "Testing order service");
+		return "Testing order service";
 	}
 
     @PostMapping("/create")
