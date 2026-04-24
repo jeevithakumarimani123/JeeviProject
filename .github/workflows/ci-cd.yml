@@ -1,0 +1,51 @@
+name: Microservices CI-CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service:
+          - order-service
+          - payment-service
+          - api-gateway
+          - eureka-server
+          - auth-service
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build Service
+        run: |
+          cd ${{ matrix.service }}
+          mvn clean install
+
+      - name: Run Tests
+        run: |
+          cd ${{ matrix.service }}
+          mvn test
+
+      - name: Build Docker Image
+        run: |
+          cd ${{ matrix.service }}
+          docker build -t mydockerhub/${{ matrix.service }}:${{ github.sha }} .
+
+      - name: Login to DockerHub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Push Image
+        run: |
+          docker tag mydockerhub/${{ matrix.service }}:${{ github.sha }} mydockerhub/${{ matrix.service }}:latest
+          docker push mydockerhub/${{ matrix.service }}:latest
