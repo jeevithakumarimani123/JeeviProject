@@ -35,12 +35,12 @@ jobs:
       - name: Build Docker Image
         run: |
           cd ${{ matrix.service }}
-          docker build -t mydockerhub/${{ matrix.service }}:${{ github.sha }} .
+          docker build -t jeevidockertest/cicdrepository/${{ matrix.service }}:${{ github.sha }} .
 
       - name: Login to DockerHub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Push Image
         run: |
-          docker tag mydockerhub/${{ matrix.service }}:${{ github.sha }} mydockerhub/${{ matrix.service }}:latest
-          docker push mydockerhub/${{ matrix.service }}:latest
+          docker tag jeevidockertest/cicdrepository/${{ matrix.service }}:${{ github.sha }} jeevidockertest/cicdrepository/${{ matrix.service }}:latest
+          docker push jeevidockertest/cicdrepository/${{ matrix.service }}:latest
