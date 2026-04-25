@@ -7,8 +7,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     strategy:
+      max-parallel: 2
       matrix:
         service:
           - order-service
