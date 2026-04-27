@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+
+  eureka-server:
+    image: jeevidockertest/eureka-server:latest
+    ports:
+      - "8761:8761"
+
+  order-service:
+    image: jeevidockertest/order-service:latest
+    depends_on:
+      - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+    ports:
+      - "8081:8081"
+      
+  payment-service:
+    image: jeevidockertest/payment-service:latest
+    depends_on:
+      - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+    ports:
+      - "8082:8082"
+
+  api-gateway:
+    image: jeevidockertest/api-gateway:latest
+    depends_on:
+      - order-service
+      - payment-service
+      - auth-service
+    environment:
+       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+    ports:
+      - "8080:8080"
+      
+  auth-service:
+    image: jeevidockertest/auth-service:latest
+    depends_on:
+      - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+    ports:
+      - "8083:8083"
